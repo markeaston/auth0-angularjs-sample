@@ -6,11 +6,19 @@
     .module('app')
     .service('authService', authService);
 
-  authService.$inject = ['$rootScope', 'lock', 'authManager'];
+  authService.$inject = ['$rootScope', 'lock', 'authManager', '$state'];
 
-  function authService($rootScope, lock, authManager) {
+  function authService($rootScope, lock, authManager, $state) {
 
     var userProfile = JSON.parse(localStorage.getItem('profile')) || {};
+
+    function getUserProfile() {
+      return userProfile;
+    }
+
+    function setUserProfile(profile) {
+      userProfile = profile;
+    }
 
     function login() {
       lock.show();
@@ -38,13 +46,15 @@
           }
 
           localStorage.setItem('profile', JSON.stringify(profile));
+          setUserProfile(profile);
+          $state.go('app.test.home');
           $rootScope.$broadcast('userProfileSet', profile);
         });
       });
     }
 
     return {
-      userProfile: userProfile,
+      getUserProfile: getUserProfile,
       login: login,
       logout: logout,
       registerAuthenticationListener: registerAuthenticationListener,
