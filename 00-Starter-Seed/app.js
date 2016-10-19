@@ -3,7 +3,7 @@
   'use strict';
 
   angular
-    .module('app', ['auth0.lock', 'angular-jwt', 'ui.router'])
+    .module('app', ['ui.router', 'auth0.lock', 'angular-jwt', 'auth0.auth0'])
     .config(config);
 
     config.$inject = ['$httpProvider', 'lockProvider', 'jwtOptionsProvider', 'jwtInterceptorProvider', '$stateProvider', '$urlRouterProvider','$locationProvider'];
@@ -20,7 +20,7 @@
         options: {
           auth: {
             params: {
-              scope: 'openid'
+              scope: 'openid offline_access'    //offline_access so that we get a refresh token   
             }
           }
         }
@@ -29,7 +29,8 @@
       // Configuration for angular-jwt
       jwtOptionsProvider.config({
         tokenGetter: function() {
-          return localStorage.getItem('id_token');
+          var token = localStorage.getItem('id_token');
+          return token;
         },
         whiteListedDomains: ['localhost'],
         unauthenticatedRedirectPath: '/login'
