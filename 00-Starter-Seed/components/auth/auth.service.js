@@ -11,6 +11,17 @@
   function authService($rootScope, lock, authManager, $state) {
 
     var userProfile = JSON.parse(localStorage.getItem('profile')) || {};
+    var idToken = localStorage.getItem('id_token');
+    var refreshToken = localStorage.getItem('refresh_token');
+
+    function getToken() {
+      return idToken;
+    }
+
+    function getRefreshToken() {
+      return refreshToken;
+    }
+
 
     function getUserProfile() {
       return userProfile;
@@ -18,6 +29,14 @@
 
     function setUserProfile(profile) {
       userProfile = profile;
+    }
+
+    function setToken(token) {
+      idToken = token;
+    }
+
+  function setRefreshToken(token) {
+      refreshToken = token;
     }
 
     function login() {
@@ -28,9 +47,12 @@
     // id_token and profile
     function logout() {
       localStorage.removeItem('id_token');
+      localStorage.removeItem('refresh_token');      
       localStorage.removeItem('profile');
       authManager.unauthenticate();
       userProfile = {};
+      idToken = null;
+      refreshToken = null;
     }
 
     // Set up the logic for when a user authenticates
@@ -38,6 +60,8 @@
     function registerAuthenticationListener() {
       lock.on('authenticated', function(authResult) {
         localStorage.setItem('id_token', authResult.idToken);
+        setToken(authResult.idToken);
+        setRefreshToken(authResult.refreshToken);
         authManager.authenticate();
 
         lock.getProfile(authResult.idToken, function(error, profile) {
@@ -55,6 +79,9 @@
 
     return {
       getUserProfile: getUserProfile,
+      getToken: getToken,
+      setToken: setToken,      
+      getRefreshToken: getRefreshToken,
       login: login,
       logout: logout,
       registerAuthenticationListener: registerAuthenticationListener,
